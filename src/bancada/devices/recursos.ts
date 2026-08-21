@@ -1,47 +1,44 @@
-
 export type EstadoDeRecurso = 'concedido' | 'negado' | 'indeterminado';
-
 export interface RecursoOpcional {
   readonly nome: string;
-  readonly funcionalidade: string;
+  readonly paraQueServe: string;
 }
 
 export const RECURSOS_CONSULTADOS: readonly RecursoOpcional[] = [
   {
     nome: 'local-floor',
-    funcionalidade:
+    paraQueServe:
       'origem no chão do espaço físico — é o que faz a bancada nascer na altura certa',
   },
   {
     nome: 'bounded-floor',
-    funcionalidade:
+    paraQueServe:
       'origem no chão mais os limites da área livre que o aparelho conhece',
   },
   {
     nome: 'unbounded',
-    funcionalidade: 'espaço sem fronteira declarada, para percursos longos',
+    paraQueServe: 'espaço sem fronteira declarada, para percursos longos',
   },
   {
     nome: 'hit-test',
-    funcionalidade:
+    paraQueServe:
       'lançar um raio contra as superfícies reais que o aparelho encontrou',
   },
   {
     nome: 'anchors',
-    funcionalidade:
+    paraQueServe:
       'prender um objeto virtual a um ponto do mapa e deixar o aparelho corrigi-lo',
   },
   {
     nome: 'plane-detection',
-    funcionalidade: 'receber os planos que o aparelho reconheceu no ambiente',
+    paraQueServe: 'receber os planos que o aparelho reconheceu no ambiente',
   },
   {
     nome: 'hand-tracking',
-    funcionalidade:
+    paraQueServe:
       'pose das mãos sem controle — fora do núcleo do percurso, e consultado só para registro',
   },
 ];
-
 
 export function estadoDoRecurso(
   nome: string,
@@ -52,4 +49,3 @@ export function estadoDoRecurso(
   }
   return concedidos.includes(nome) ? 'concedido' : 'negado';
 }
-

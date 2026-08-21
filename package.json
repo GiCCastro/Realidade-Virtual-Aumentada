@@ -4,11 +4,11 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-  "dev": "vite --host",
-  "build": "tsc --noEmit && vite build",
-  "preview": "vite preview --host",
-  "typecheck": "tsc --noEmit"
-},
+    "dev": "vite --host",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview --host",
+    "typecheck": "tsc --noEmit"
+  },
   "devDependencies": {
     "@types/three": "^0.185.4",
     "@vitejs/plugin-basic-ssl": "^2.3.0",
