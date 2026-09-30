@@ -1,16 +1,16 @@
 import * as THREE from 'three';
 import { XRControllerModelFactory } from 'three/addons/webxr/XRControllerModelFactory.js';
+import { GerenciadorPecas, PecaBateriaData } from './pecas';
 
 /**
- * Configura os dois controllers XR:
- *  - modelo 3D do controle
- *  - um "raio" de apontamento
- *  - pegar/soltar objetos com o gatilho (selectstart/selectend)
+ * Configura os controllers WebXR para permitir interação por apontamento,
+ * pegar/carregar peças da bateria e soltar para encaixe.
  */
 export function setupControllers(
   renderer: THREE.WebGLRenderer,
   scene: THREE.Scene,
   interactive: THREE.Object3D[],
+  gerenciadorPecas: GerenciadorPecas,
 ) {
   const raycaster = new THREE.Raycaster();
   const tempMatrix = new THREE.Matrix4();
@@ -47,24 +47,42 @@ export function setupControllers(
     tempMatrix.identity().extractRotation(controller.matrixWorld);
     raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld);
     raycaster.ray.direction.set(0, 0, -1).applyMatrix4(tempMatrix);
-    const hits = raycaster.intersectObjects(interactive, false);
+    const hits = raycaster.intersectObjects(interactive, true);
     return hits.length > 0 ? hits[0] : null;
   }
 
   function onSelectStart(controller: THREE.XRTargetRaySpace): void {
     const hit = intersect(controller);
     if (hit) {
-      const obj = hit.object;
-      controller.attach(obj); // "gruda" o objeto na mão
-      selected.set(controller, obj);
+      let targetObj: THREE.Object3D | null = hit.object;
+      while (targetObj && !targetObj.userData.pecaData && targetObj.parent) {
+        targetObj = targetObj.parent;
+      }
+
+      const pecaData: PecaBateriaData | undefined = targetObj?.userData?.pecaData;
+
+      if (pecaData) {
+        if (pecaData.encaixado) {
+          pecaData.tocarSom();
+        } else {
+          controller.attach(pecaData.group);
+          selected.set(controller, pecaData.group);
+        }
+      }
     }
   }
 
   function onSelectEnd(controller: THREE.XRTargetRaySpace): void {
-    const obj = selected.get(controller);
-    if (obj) {
-      scene.attach(obj); // solta de volta na cena
+    const objGroup = selected.get(controller);
+    if (objGroup) {
+      scene.attach(objGroup);
       selected.delete(controller);
+
+      // Encontra dados da peça correspondente
+      const pecaData = gerenciadorPecas.pecas.find((p) => p.group === objGroup);
+      if (pecaData) {
+        gerenciadorPecas.tentarEncaixar(pecaData);
+      }
     }
   }
 
